@@ -1,5 +1,6 @@
 import json
 import yaml
+from os.path import exists
 from sys import argv
 
 
@@ -24,6 +25,13 @@ class bmsm:
             raise Exception(
                 f"The file provided is not a valid BMSM file. The header is equal to {self.header.file_type}"
             )
+
+    @staticmethod
+    def create_new(filename: str) -> None:
+        e = open(filename, "w+")
+        e.close()
+        with open(filename, "rb+") as new:
+            new.write(b"\x00\x00\x00\x00\x06\x00\x00\x00")
 
     def read_message(self) -> bytes:
         count = 0
@@ -50,9 +58,8 @@ class bmsm:
                 count += 1
         return [i for i in label_data.split(b"\x00") if len(i) != 0]
 
-    def parse(self):
+    def parse(self) -> dict:
         entries = {}
-        entries[self.filename] = {}
         self.file.seek(8)
         for _ in range(self.header.string_count):
             # Call this unknown data as we don't know what the other
@@ -72,7 +79,7 @@ class bmsm:
 
             if len(unknown_data) != 2:
                 unknown_data.remove(label.encode("ASCII"))
-            entries[self.filename][label] = {"Message": message}
+            entries[label] = {"Message": message}
             for encoded_unknown in range(len(unknown_data)):
                 try:
                     unknown_data[encoded_unknown] = unknown_data[
@@ -81,7 +88,7 @@ class bmsm:
                 except:
                     pass
             if len(unknown_data) > 2:
-                entries[self.filename][label] = {
+                entries[label] = {
                     "BMSS Style Label": unknown_data[len(unknown_data) - 1],
                     "Unknowns": sorted(
                         [
@@ -94,25 +101,25 @@ class bmsm:
                     "Message": message,
                 }
             else:
-                entries[self.filename][label] = {
+                entries[label] = {
                     "BMSS Style Label": unknown_data[len(unknown_data) - 1],
                     "Unknowns": [],
                     "Message": message,
                 }
         return entries
 
-    def to_json(self, json_filename: str):
+    def to_json(self, json_filename: str) -> None:
         with open(json_filename, "w+") as file:
             json.dump(self.parse(), file, indent=4)
+        print("Done")
 
-    def to_yaml(self):
+    def to_yaml(self) -> None:
         with open(f"{self.filename[:-5]}.yaml", "w+") as file:
             yaml.dump(self.parse(), file)
 
-    def from_json(self, exported_file) -> None:
+    def from_json(self, exported_file: str) -> None:
         self.file.seek(0)
         bmsm_data = json.loads(open(exported_file, "r").read())
-        bmsm_data = bmsm_data[self.filename]
         with open(f"{self.filename}", "rb+") as bmsm_file:
             bmsm_file.write(
                 len(bmsm_data).to_bytes(4, byteorder="little", signed=False)
@@ -124,7 +131,9 @@ class bmsm:
                 key in keys
                 return next(keys)
 
+            entries_written = 0
             for key in bmsm_data:
+                entries_written += 1
                 print("Writing entry", bmsm_data[key])
                 bmsm_file.write(key.encode())
                 bmsm_file.write(b"\x00")
@@ -144,16 +153,20 @@ class bmsm:
                             else unknown.encode() + b"\x00\x00\x00"
                         )
 
-        print(f"Done writing {self.header.string_count} entries")
+        print(f"Done writing {entries_written} entries")
 
 
 # Command line parsing
-in_file = argv[1]
-out_file = argv[2]
+command = argv[1]
+in_file = argv[2]
 
-if in_file.endswith("bmsm"):
+if command == "-export":
+    out_file = argv[3]
     file = bmsm(in_file)
     file.to_json(out_file)
-elif in_file.endswith("json"):
+elif command == "-import":
+    out_file = argv[3]
     file = bmsm(out_file)
     file.from_json(in_file)
+elif command == "-newfile":
+    bmsm.create_new(in_file)
