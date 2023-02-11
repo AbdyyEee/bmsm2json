@@ -1,6 +1,4 @@
-import json
-import yaml
-from os.path import exists
+from json import dump, loads
 from sys import argv
 
 
@@ -15,12 +13,8 @@ class bmsm:
         self.file = open(filename, "rb+")
         self.filename = filename
         self.header = header()
-        self.header.string_count = int(
-            "".join([self.file.read(1).hex() for i in range(4)][::-1]), 16
-        )
-        self.header.file_type = int(
-            "".join([self.file.read(1).hex() for i in range(1)][::-1]), 16
-        )
+        self.header.string_count = int.from_bytes(self.file.read(4), byteorder="little")
+        self.header.file_type = int.from_bytes(self.file.read(1), byteorder="little")
         if self.header.file_type != 6:
             raise Exception(
                 f"The file provided is not a valid BMSM file. The header is equal to {self.header.file_type}"
@@ -28,10 +22,10 @@ class bmsm:
 
     @staticmethod
     def create_new(filename: str) -> None:
-        e = open(filename, "w+")
-        e.close()
-        with open(filename, "rb+") as new:
-            new.write(b"\x00\x00\x00\x00\x06\x00\x00\x00")
+        new_file = open(filename, "w+")
+        new_file.close()
+        with open(filename, "rb+") as new_file:
+            new_file.write(b"\x00\x00\x00\x00\x06\x00\x00\x00")
 
     def read_message(self) -> bytes:
         count = 0
@@ -44,7 +38,6 @@ class bmsm:
             else:
                 message += byte
                 count = 0
-
         return message.decode("UTF-16")
 
     def read_label_unkown_data(self) -> list:
@@ -56,7 +49,11 @@ class bmsm:
             byte = self.file.read(1)
             if byte == b"\xff" or byte == b"\xfe":
                 count += 1
-        return [i for i in label_data.split(b"\x00") if len(i) != 0]
+        return [
+            unknown_data.decode()
+            for unknown_data in label_data.split(b"\x00")
+            if len(unknown_data) != 0
+        ]
 
     def parse(self) -> dict:
         entries = {}
@@ -69,22 +66,16 @@ class bmsm:
             self.file.seek(self.file.tell() - 1)
             message = self.read_message()
             # Label data can be length of 2 without the unknown entries or length of 5 with the unknown entries
-            label = (
-                unknown_data[0].decode("ASCII")
-                if len(unknown_data) != 5
-                else unknown_data[3].decode("ASCII")
-            )
+            label = unknown_data[0] if len(unknown_data) != 5 else unknown_data[3]
 
             print("Parsing entry:", {label: message})
 
             if len(unknown_data) != 2:
-                unknown_data.remove(label.encode("ASCII"))
+                unknown_data.remove(label)
             entries[label] = {"Message": message}
             for encoded_unknown in range(len(unknown_data)):
                 try:
-                    unknown_data[encoded_unknown] = unknown_data[
-                        encoded_unknown
-                    ].decode("ASCII")
+                    unknown_data[encoded_unknown] = unknown_data[encoded_unknown]
                 except:
                     pass
             if len(unknown_data) > 2:
@@ -110,16 +101,12 @@ class bmsm:
 
     def to_json(self, json_filename: str) -> None:
         with open(json_filename, "w+") as file:
-            json.dump(self.parse(), file, indent=4)
+            dump(self.parse(), file, indent=4)
         print("Done")
-
-    def to_yaml(self) -> None:
-        with open(f"{self.filename[:-5]}.yaml", "w+") as file:
-            yaml.dump(self.parse(), file)
 
     def from_json(self, exported_file: str) -> None:
         self.file.seek(0)
-        bmsm_data = json.loads(open(exported_file, "r").read())
+        bmsm_data = loads(open(exported_file, "r").read())
         with open(f"{self.filename}", "rb+") as bmsm_file:
             bmsm_file.write(
                 len(bmsm_data).to_bytes(4, byteorder="little", signed=False)
