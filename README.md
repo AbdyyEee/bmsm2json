@@ -1,5 +1,5 @@
 # bmsm2json
-A pythons script that converts Streetpass Mii Plaza's message files (`bmsm`) to json and back.
+A python script that converts Streetpass Mii Plaza's message files (`bmsm`) to json and back.
 
 # Usage
 
