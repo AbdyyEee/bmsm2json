@@ -1,0 +1,81 @@
+{
+    "text_sample.bmsm": {
+        "test_01": {
+            "BMSS Style Label": "std_black",
+            "Unknowns": [],
+            "Message": "nil"
+        },
+        "test_02": {
+            "BMSS Style Label": "std_black",
+            "Unknowns": [
+                "nil",
+                "nil",
+                "nil"
+            ],
+            "Message": "nil"
+        },
+        "test_03": {
+            "BMSS Style Label": "std_black",
+            "Unknowns": [
+                "nil",
+                "nil",
+                "nil"
+            ],
+            "Message": "nil"
+        },
+        "test_04": {
+            "BMSS Style Label": "std_green_small",
+            "Unknowns": [
+                "nil",
+                "nil",
+                "nil"
+            ],
+            "Message": "nil"
+        },
+        "test_05": {
+            "BMSS Style Label": "std_black",
+            "Unknowns": [
+                "nil",
+                "1",
+                "1"
+            ],
+            "Message": "nil"
+        },
+        "test_06": {
+            "BMSS Style Label": "std_black",
+            "Unknowns": [
+                "nil",
+                "nil",
+                "nil"
+            ],
+            "Message": "nil"
+        },
+        "test_07": {
+            "BMSS Style Label": "std_black",
+            "Unknowns": [
+                "nil",
+                "nil",
+                "nil"
+            ],
+            "Message": "nil"
+        },
+        "test_08": {
+            "BMSS Style Label": "std_black",
+            "Unknowns": [
+                "nil",
+                "nil",
+                "nil"
+            ],
+            "Message": "nil"
+        },
+        "test_09": {
+            "BMSS Style Label": "std_black",
+            "Unknowns": [
+                "nil",
+                "nil",
+                "nil"
+            ],
+            "Message": "nil"
+        }
+    }
+}
