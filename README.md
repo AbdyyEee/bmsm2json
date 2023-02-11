@@ -7,17 +7,17 @@ See `text_sample.json` for the syntax of this file.
 
 ## Exporting
 ```
-bmsm [in_file.bmsm] [out_file.json]
+bmsm -export [in_file.bmsm] [out_file.json]
 ```
 
 ## Importing 
 ```
-For importing to an existing bmsm file:
-
-bmsm [in_file.json] [existing_file.bmsm]
-
-For importing to a new not created bmsm file
-
-bmsm [in_file.json] [new_bmsm_filename.bmsm]
+bmsm -import [in_file.json] [existing_file.bmsm]
 ```
+
+## Creating New File
+```
+bmsm -newfile [new_bmsm_filename.bmsm]
+```
+
 
