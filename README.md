@@ -1,5 +1,5 @@
 # bmsm2json
-A script that converts Streetpass Mii Plaza's message files (`bmsm`) to json and back.
+A script that converts Streetpass Mii Plaza's message files (`bmsm`) to json and back. Supports new entries, unknown data editing, and message editing.
 
 See `text_sample.json` for the syntax of this file.
 
