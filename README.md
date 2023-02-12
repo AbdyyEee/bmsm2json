@@ -17,7 +17,7 @@ bmsm -import [in_file.json] [existing_file.bmsm]
 
 ## Creating New File
 ```
-bmsm -newfile [new_bmsm_filename.bmsm] [json_to_import]
+bmsm -newfile [new_bmsm_filename.bmsm]
 ```
 
 
